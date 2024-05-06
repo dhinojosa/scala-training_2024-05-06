@@ -7,3 +7,9 @@
 5. What do you do for zen?
 
    a. Hiking, Kids, Gardening, Sewing, Crosswords, etc.
+
+## Notes
+
+
+1. Python (type-hints) relationship with Scala
+2. Object Oriented vs Scala Functional Style

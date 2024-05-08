@@ -45,9 +45,7 @@ class FunctionSpec extends AnyFunSpec with Matchers {
             val b = new Box(120)
             val b2 = new Box("Hello")
             val b3: Box[Person] = new Box(new Washingtonian)
-            b3.foo(new Person)
-            val b4: Box[Washingtonian] = new Box(new Person)
-            b4.foo(new Washingtonian)
+//            val b4: Box[Washingtonian] = new Box(new Person)
         }
         it("a function returning a function as a closure") {
             def findAllWordsContainerAn(c: Char, s: List[String]) = ???

@@ -245,10 +245,20 @@ class ImplicitsSpec extends AnyFunSpec with Matchers {
                 }
 
                 class Employee(val firstName: String, val lastName: String)
+                object Employee {
+                    //Recipe for Employee
+                    implicit val loggableFirstThenLast: Loggable[Employee] = new Loggable[Employee] {
+                        override def log(t: Employee): String = s"Employee(firstName = ${t.firstName}, lastName = ${t.lastName})"
+                    }
 
-                //Recipe for Employee
-                implicit val loggableForEmployees = new Loggable[Employee] {
-                    override def log(t: Employee): String = s"Employee(firstName = ${t.firstName}, lastName = ${t.lastName})"
+                    implicit val loggableLastThenFirst: Loggable[Employee] = new Loggable[Employee] {
+                        override def log(t: Employee): String = s"Employee(lastName = ${t.lastName}, firstName = ${t.firstName})"
+                    }
+                }
+
+
+                def toStringx[T](t: T)(implicit loggable: Loggable[T]): String = {
+                    loggable.log(t)
                 }
 
                 def toStringz[T: Loggable](t: T): String = {
@@ -257,9 +267,60 @@ class ImplicitsSpec extends AnyFunSpec with Matchers {
                     loggable.log(t)
                 }
 
-                toStringz(new Employee("Bjørn", "H")) should be("Employee(firstName = Bjørn, lastName = H)")
+                {
+                    import Employee.loggableFirstThenLast
+                    toStringx(new Employee("Thomas", "Devo")) should be("Employee(firstName = Thomas, lastName = Devo)")
+                    toStringz(new Employee("Bjørn", "Henry")) should be("Employee(firstName = Bjørn, lastName = Henry)")
+                }
+
+                {
+                    import Employee.loggableLastThenFirst
+                    toStringx(new Employee("Thomas", "Devo")) should be("Employee(lastName = Devo, firstName = Thomas)")
+                    toStringz(new Employee("Bjørn", "Henry")) should be("Employee(lastName = Henry, firstName = Bjørn)")
+                }
             }
         }
     }
+    describe(
+        """Type Constraints are used to ensure that a particular method can run
+          | if a particular generic is of a certain type, this is typically used for
+          | one method""".stripMargin) {
 
+        it(
+            """uses one operator, =:= which is actually the full type =:=[A,B] that
+              |  will to see if something is of the same type""".stripMargin) {
+
+            class MyPair[A, B](val a: A, val b: B) {
+                def first: A = a
+
+                def second: B = b
+
+                def toHomogenousList(implicit x: A =:= B): List[A] = List(a, b).asInstanceOf[List[A]] //Only where A is same as B
+            }
+
+            val myPair = new MyPair(4, 10)
+            myPair.toHomogenousList should be(List(4, 10))
+
+        }
+
+        it("""uses the operator, <:< which will test if A is a subtype of B""") {
+            pending
+        }
+    }
+    describe("Getting around Erasure Using TypeTags") {
+        it("used to use Manifest but now uses a type tag to retrieve what is erased") {
+
+            import scala.reflect.runtime.universe._
+
+            def matchList[A](list: List[A])(implicit tt: TypeTag[A]): String = {
+                tt.tpe match {
+                    case t if t =:= typeOf[Int] => "List of Int"
+                    case t if t =:= typeOf[String] => "List of String"
+                    case _ => "List of Something Unknown"
+                }
+            }
+
+            matchList(List("Foo", "Bar", "Baz")) should be("List of String")
+        }
+    }
 }

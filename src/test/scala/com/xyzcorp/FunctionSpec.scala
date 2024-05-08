@@ -4,6 +4,10 @@ import com.xyzcorp.person.{Person, Washingtonian}
 import org.scalatest.funspec.AnyFunSpec
 import org.scalatest.matchers.should.Matchers
 
+import java.time.Instant
+import java.util.concurrent.TimeUnit
+import scala.concurrent.duration.{Duration, FiniteDuration}
+
 
 class FunctionSpec extends AnyFunSpec with Matchers {
     describe("A function") {
@@ -103,6 +107,25 @@ class FunctionSpec extends AnyFunSpec with Matchers {
             println(calculateAverage(List(80, 90, 100, 70, 50, 30, 80, 90, 100)))
             println(calculateAverage(List.empty[Int]))
             println(calculateAverage(List(0, 0)))
+        }
+    }
+
+    describe("by-name parameter") {
+        it("encapsulates an action as a block") {
+            object Timer {
+                def time[A](f: => A): (A, FiniteDuration) = {
+                    val instant = Instant.now()
+                    f -> Duration.apply(Instant.now().toEpochMilli - instant.toEpochMilli, TimeUnit.MILLISECONDS);
+                }
+            }
+
+            val result = Timer.time {
+                Thread.sleep(2000)
+                400
+            }
+
+            result._1 should be(400)
+            result._2.toMillis shouldBe > (2000L)
         }
     }
 }

@@ -316,11 +316,14 @@ class ImplicitsSpec extends AnyFunSpec with Matchers {
                 tt.tpe match {
                     case t if t =:= typeOf[Int] => "List of Int"
                     case t if t =:= typeOf[String] => "List of String"
+                    case t if t =:= typeOf[Employee] => "List of Employee"
                     case _ => "List of Something Unknown"
                 }
             }
 
             matchList(List("Foo", "Bar", "Baz")) should be("List of String")
+            matchList(List("Foo", "Bar", "Baz")) should be("List of String")
+            matchList(List(Employee("Gus", "Rover", Department("Auto")))) should be("List of Employee")
         }
     }
 }

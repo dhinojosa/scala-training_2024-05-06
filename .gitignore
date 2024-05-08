@@ -11,5 +11,7 @@ project/plugins/project/
 .history
 .cache
 .lib/
-
+.bloop/
+.metals
 .idea
+!/build.sbt

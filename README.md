@@ -16,3 +16,7 @@
 3. LazyList
 4. Try, and Either
 5. Future
+6. By-Name
+7. Resolve the Future, and with a for-comprehension
+8. How to read the signatures so you know how to interpret.
+9. Future. sequence 
